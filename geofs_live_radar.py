@@ -7,18 +7,14 @@ Run:
     python geofs_live_radar.py
 
 Open http://127.0.0.1:5000
-
-Notes:
-- The server proxies the public endpoint https://mps.geo-fs.com/map as /api/map
-- The UI fetches /api/map every REFRESH_MS and updates markers smoothly
-- To add a richer aircraft id->name mapping (including community models), set AC_MAP_URL
-  to a raw JSON file mapping IDs to names (e.g. {"10":"Airbus A320", "24":"B737"}).
-- Added feature: show only aircraft whose callsign contains at least one keyword in SHOW_KEYWORDS
 """
+
 from flask import Flask, Response, make_response
 import requests
 import os
 import json
+import threading
+import time
 
 # ---------------- Config ----------------
 UPSTREAM_URL = "https://mps.geo-fs.com/map"
@@ -39,6 +35,23 @@ SMALL_DEFAULT_AC_MAP = {
     "29": "B737 Classic",
     "1013": "Aero L-1011 (community?)",
 }
+
+SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]","[tuAF]","[TuAF]","[TUAF]","[TASC]","[TaSC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]","(U)","(UTP)","(P)","(PMC)","(RNLAF)","(RNZAF)","(USAF)","(tuAF)","(TuAF)","(TASC)","(TaSC)","(TUAF)","(UAC)","(UAEAF)","(USSR)","(BAF)","(PAF)","(RAF)"]
+
+
+AC_STATE = {}  # Tracks which airspaces each aircraft is currently in
+
+# ---------------- Discord Config ----------------
+DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406156183827382282/nRpVsLaN8uAV9189JmzwKthgv7vLTOMGMJwss-SYV8AzTyuYkJ0NjYSzrCPryFPxJ13D"
+ROLE_ID = ""  # optional, leave empty string "" if not tagging
+
+def send_discord_message(msg):
+    try:
+        payload = {"content": f"{msg}"} if ROLE_ID else {"content": msg}
+        r = requests.post(DISCORD_WEBHOOK_URL, json=payload, timeout=5)
+        r.raise_for_status()
+    except Exception as e:
+        print("Discord message failed:", e)
 
 # ---------------- Flask / proxy ----------------
 app = Flask(__name__)
@@ -76,6 +89,101 @@ def api_acmap():
 @app.route("/", methods=["GET"])
 def index():
     return Response(HTML_PAGE, mimetype="text/html")
+
+# ------------------ Airspace detection ------------------
+def point_in_polygon(lat, lon, polygon):
+    inside = False
+    n = len(polygon)
+    j = n - 1
+    for i in range(n):
+        xi, yi = polygon[i]['lat'], polygon[i]['lon']
+        xj, yj = polygon[j]['lat'], polygon[j]['lon']
+        if ((yi > lon) != (yj > lon)) and (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+def airspace_monitor_loop():
+    AIRSPACES = [
+        {
+            "name": "Mainland",
+            "coords": [
+                {"lat": 25, "lon": 61.5}, {"lat": 27.5, "lon": 62.8}, {"lat": 29.7, "lon": 60.8},
+                {"lat": 32.66, "lon": 68.86}, {"lat": 36.88, "lon": 72.22}, {"lat": 35.5, "lon": 80},
+                {"lat": 31.8, "lon": 79}, {"lat": 30.33, "lon": 80.97}, {"lat": 28.95, "lon": 80},
+                {"lat": 26.5, "lon": 88}, {"lat": 27.96, "lon": 88}, {"lat": 29.4, "lon": 97.5},
+                {"lat": 20.86, "lon": 92.4}, {"lat": 21.7, "lon": 88.84}, {"lat": 7.5, "lon": 78.4},
+                {"lat": 7.67, "lon": 76.2}, {"lat": 21, "lon": 68.5},
+            ],
+        },
+        {
+            "name": "Islands",
+            "coords": [
+                {"lat": 13.55, "lon": 92.83}, {"lat": 13.59, "lon": 93.13}, {"lat": 10.6, "lon": 92.6},
+                {"lat": 6.84, "lon": 94}, {"lat": 6.73, "lon": 93.69}, {"lat": 10.65, "lon": 92.27},
+            ],
+        },
+        {
+            "name": "Africa",
+            "coords": [
+                {"lat": 10.57, "lon": 22.4}, {"lat": 10.51, "lon": 34.1}, {"lat": 14.7, "lon": 37.9},
+                {"lat": 13.98, "lon": 40.86}, {"lat": 12.47, "lon": 42.35}, {"lat": 11, "lon": 41.75},
+                {"lat": 7.8, "lon": 47.34}, {"lat": 5, "lon": 44.76}, {"lat": 3.84, "lon": 38},
+                {"lat": 3, "lon": 16}, {"lat": 7.68, "lon": 15.5},
+            ],
+        },
+    ]
+
+
+    REFRESH_INTERVAL = 2  # seconds
+    while True:
+        try:
+            r = requests.post(UPSTREAM_URL, data={}, timeout=3)
+            r.raise_for_status()
+            data = r.json()
+            users = data.get("users", [])
+
+            for u in users:
+                if not u or 'co' not in u or len(u['co']) < 4:
+                    continue
+                lat, lon = u['co'][0], u['co'][1]
+                callsign = u.get('cs', '').strip()
+                if not callsign:
+                    continue
+                if callsign.lower() == 'randomassguy[u]':
+                    continue
+                if callsign == 'AOD-12[D99][P][Chief]':
+                    continue
+                show = any(k.upper() in callsign.upper() for k in SHOW_KEYWORDS)
+                if not show:
+                    continue
+
+                user_id = str(u.get('id', u.get('acid', str(time.time()))))
+
+                # Initialize state if not present
+                if user_id not in AC_STATE:
+                    AC_STATE[user_id] = {}
+
+                for space in AIRSPACES:
+                    inside = point_in_polygon(lat, lon, space['coords'])
+                    was_inside = AC_STATE[user_id].get(space['name'], False)
+
+                    if inside and not was_inside:
+                        # Player just entered
+                        print(f"{callsign} ENTERED {space['name']}")
+                        send_discord_message(f"ALERT:        {callsign} has ENTERED our {space['name']}")
+                        AC_STATE[user_id][space['name']] = True
+
+                    elif not inside and was_inside:
+                        # Player just left
+                        print(f"{callsign} LEFT {space['name']}")
+                        send_discord_message(f"{callsign} has LEFT {space['name']}")
+                        AC_STATE[user_id][space['name']] = False
+
+        except Exception as e:
+            print("Airspace monitor error:", e)
+
+        time.sleep(REFRESH_INTERVAL)
 
 # ---------------- HTML/JS UI ----------------
 HTML_PAGE = r"""<!doctype html>
@@ -123,7 +231,7 @@ HTML_PAGE = r"""<!doctype html>
   const STALE_MS = 15000;
   const LABEL_ZOOM_MIN = 0;
   const roleId = "1203013719752446042";
-  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406218574845972501/U01k2UlXJJl7X51qVyajddgh-rFAqOPn4Wg9tMkOw88TPQ_ZlynOl8swbg9xmJooD7PU";
+  const DISCORD_WEBHOOK_URL = "";
 
 
   // Define airspaces polygons
@@ -436,6 +544,8 @@ if __name__ == "__main__":
     else:
         print(f"Using default AC map with {len(_ac_map)} entries. Set AC_MAP_URL to load more.")
 
-    print(f"GeoFS Live Radar running on http://0.0.0.1:{PORT}")
-    app.run(host="0.0.0.0", port=PORT, debug=False)
+    # Start background thread for 24/7 monitoring
+    threading.Thread(target=airspace_monitor_loop, daemon=True).start()
 
+    print(f"GeoFS Live Radar running on http://0.0.0.0:{PORT}")
+    app.run(host="0.0.0.0", port=PORT, debug=False)
