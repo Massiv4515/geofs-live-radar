@@ -43,7 +43,7 @@ AC_STATE = {}  # Tracks which airspaces each aircraft is currently in
 
 # ---------------- Discord Config ----------------
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406156183827382282/nRpVsLaN8uAV9189JmzwKthgv7vLTOMGMJwss-SYV8AzTyuYkJ0NjYSzrCPryFPxJ13D"
-ROLE_ID = ""  # optional, leave empty string "" if not tagging
+ROLE_ID = "1203013719752446042"  # optional, leave empty string "" if not tagging
 
 def send_discord_message(msg):
     try:
@@ -171,7 +171,7 @@ def airspace_monitor_loop():
                     if inside and not was_inside:
                         # Player just entered
                         print(f"{callsign} ENTERED {space['name']}")
-                        send_discord_message(f"ALERT:        {callsign} has ENTERED our {space['name']}")
+                        send_discord_message(f"ALERT:        {callsign} has ENTERED our {space['name']} <@&ROLE_ID>")
                         AC_STATE[user_id][space['name']] = True
 
                     elif not inside and was_inside:
@@ -184,6 +184,11 @@ def airspace_monitor_loop():
             print("Airspace monitor error:", e)
 
         time.sleep(REFRESH_INTERVAL)
+
+@app.before_first_request
+def activate_job():
+    threading.Thread(target=airspace_monitor_loop, daemon=True).start()
+
 
 # ---------------- HTML/JS UI ----------------
 HTML_PAGE = r"""<!doctype html>
@@ -543,9 +548,6 @@ if __name__ == "__main__":
             print("Error loading AC map:", e)
     else:
         print(f"Using default AC map with {len(_ac_map)} entries. Set AC_MAP_URL to load more.")
-
-    # Start background thread for 24/7 monitoring
-    threading.Thread(target=airspace_monitor_loop, daemon=True).start()
 
     print(f"GeoFS Live Radar running on http://0.0.0.0:{PORT}")
     app.run(host="0.0.0.0", port=PORT, debug=False)
