@@ -41,6 +41,10 @@ SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[RNLAF]","[RNZAF]","[USAF]","[RAAF
 
 AC_STATE = {}  # Tracks which airspaces each aircraft is currently in
 
+# Tracks the last alert we sent per (user, airspace): 'enter' or 'exit'
+LAST_EVENT = {}
+
+
 # ---------------- Discord Config ----------------
 DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406156183827382282/nRpVsLaN8uAV9189JmzwKthgv7vLTOMGMJwss-SYV8AzTyuYkJ0NjYSzrCPryFPxJ13D"
 ROLE_ID = "1203013719752446042"  # optional, leave empty string "" if not tagging
@@ -158,27 +162,36 @@ def airspace_monitor_loop():
                 if not show:
                     continue
 
-                user_id = str(u.get('id', u.get('acid', str(time.time()))))
-
+                # Stable user key: prefer id, then acid, then callsign
+                user_id = str(u.get('id') or u.get('acid') or callsign)
+                
                 # Initialize state if not present
                 if user_id not in AC_STATE:
                     AC_STATE[user_id] = {}
-
+                
                 for space in AIRSPACES:
                     inside = point_in_polygon(lat, lon, space['coords'])
                     was_inside = AC_STATE[user_id].get(space['name'], False)
 
-                    if inside and not was_inside:
-                        # Player just entered
-                        print(f"{callsign} ENTERED {space['name']}")
-                        send_discord_message(f"ALERT:        {callsign} has ENTERED our {space['name']} <@&{ROLE_ID}>")
-                        AC_STATE[user_id][space['name']] = True
+                key = (user_id, space['name'])
+                last = LAST_EVENT.get(key)  # 'enter' / 'exit' / None
+            
+                # Enter event (only once until they leave)
+                if inside and not was_inside and last != 'enter':
+                    print(f"{callsign} ENTERED {space['name']}")
+                    send_discord_message(f"ALERT: {callsign} has ENTERED our {space['name']} <@&{ROLE_ID}>")
+                    AC_STATE[user_id][space['name']] = True
+                    LAST_EVENT[key] = 'enter'
+            
+                # Exit event (only once until they enter again)
+                elif not inside and was_inside and last != 'exit':
+                    print(f"{callsign} LEFT {space['name']}")
+                    send_discord_message(f"{callsign} has LEFT {space['name']}")
+                    AC_STATE[user_id][space['name']] = False
+                    LAST_EVENT[key] = 'exit'
 
-                    elif not inside and was_inside:
-                        # Player just left
-                        print(f"{callsign} LEFT {space['name']}")
-                        send_discord_message(f"{callsign} has LEFT {space['name']}")
-                        AC_STATE[user_id][space['name']] = False
+    # If still inside (or still outside), do nothing—no repeats.
+
 
         except Exception as e:
             print("Airspace monitor error:", e)
