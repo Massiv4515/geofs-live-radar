@@ -332,7 +332,7 @@ HTML_PAGE = r"""<!doctype html>
                     currentAirspaces.push(airspace.name);
                     if (!prevAirspaces.includes(airspace.name)) {
                         //console.log(`ALERT: ${callsign} has ENTERED our ${airspace.name}`);
-                        sendDiscordMessage(`ALERT:          ${callsign} has ENTERED our ${airspace.name} <@&${roleId}> `);
+                        //sendDiscordMessage(`ALERT:          ${callsign} has ENTERED our ${airspace.name} <@&${roleId}> `);
                     }
                 }
             }
@@ -342,7 +342,7 @@ HTML_PAGE = r"""<!doctype html>
                 for (const exited of prevAirspaces) {
                     if (!currentAirspaces.includes(exited)) {
                         //console.log(`${callsign} has LEFT our ${exited}`);
-                        sendDiscordMessage(`${callsign} LEFT our ${exited}`);
+                        //sendDiscordMessage(`${callsign} LEFT our ${exited}`);
                     }
                 }
             }
