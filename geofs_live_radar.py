@@ -122,7 +122,7 @@ HTML_PAGE = r"""<!doctype html>
   const ANIMATE_MS = REFRESH_MS;
   const STALE_MS = 15000;
   const LABEL_ZOOM_MIN = 0;
-  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406156183827382282/nRpVsLaN8uAV9189JmzwKthgv7vLTOMGMJwss-SYV8AzTyuYkJ0NjYSzrCPryFPxJ13D";
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406218574845972501/U01k2UlXJJl7X51qVyajddgh-rFAqOPn4Wg9tMkOw88TPQ_ZlynOl8swbg9xmJooD7PU";
 
 
   // Define airspaces polygons
@@ -330,7 +330,7 @@ HTML_PAGE = r"""<!doctype html>
                 if (inPolygon(lat, lon, airspace.coords)) {
                     currentAirspaces.push(airspace.name);
                     if (!prevAirspaces.includes(airspace.name)) {
-                        console.log(`ALERT: ${callsign} has ENTERED our ${airspace.name}`);
+                        //console.log(`ALERT: ${callsign} has ENTERED our ${airspace.name}`);
                         sendDiscordMessage(`ALERT: ${callsign} has ENTERED our ${airspace.name}`);
                     }
                 }
@@ -340,7 +340,7 @@ HTML_PAGE = r"""<!doctype html>
             if (prevItem && prevAirspaces.length > 0) {
                 for (const exited of prevAirspaces) {
                     if (!currentAirspaces.includes(exited)) {
-                        console.log(`${callsign} has LEFT our ${exited}`);
+                        //console.log(`${callsign} has LEFT our ${exited}`);
                         sendDiscordMessage(`${callsign} LEFT our ${exited}`);
                     }
                 }
