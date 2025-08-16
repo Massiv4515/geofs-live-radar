@@ -559,7 +559,7 @@ if __name__ == "__main__":
     else:
         print(f"Using default AC map with {len(_ac_map)} entries. Set AC_MAP_URL to load more.")
 
-     threading.Thread(target=airspace_monitor_loop, daemon=True).start()
+    threading.Thread(target=airspace_monitor_loop, daemon=True).start()
 
     print(f"GeoFS Live Radar running on http://0.0.0.0:{PORT}")
     app.run(host="0.0.0.0", port=PORT, debug=False)
