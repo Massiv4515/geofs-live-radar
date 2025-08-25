@@ -183,7 +183,7 @@ HTML_PAGE = r"""<!doctype html>
 
   // Define keywords to filter callsigns
   //const SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[SHL]","[NFS]","[RPAF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]","[tuAF]","[TuAF]","[TUAF]","[TASC]","[TaSC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]","(U)","(UTP)","(P)","(PMC)","(RNLAF)","(RNZAF)","(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)","(tuAF)","(TuAF)","(TASC)","(TaSC)","(TUAF)","(UAC)","(UAEAF)","(USSR)","(BAF)","(PAF)","(RAF)"]; // add your keywords here // add your keywords here
-  const SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[RPAF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]","[tuAF]","[TuAF]","[TUAF]","[TASC]","[TaSC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]","(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(RNZAF)","(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)","(tuAF)","(TuAF)","(TASC)","(TaSC)","(TUAF)","(UAC)","(UAEAF)","(USSR)","(BAF)","(PAF)","(RAF)"]
+  const SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[RPAF]","[WANK]","[NIUF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]","[tuAF]","[TuAF]","[TUAF]","[TASC]","[TaSC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]","(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(RNZAF)","(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)","(tuAF)","(TuAF)","(TASC)","(TaSC)","(TUAF)","(UAC)","(UAEAF)","(USSR)","(BAF)","(WANK)","(NIUF)","(PAF)","(RAF)"]
 
 
   let AC_MAP = {};
