@@ -103,6 +103,12 @@ HTML_PAGE = r"""<!doctype html>
     white-space:nowrap;
     pointer-events:none;
   }
+  #map { 
+    height:90%;
+    width:95%;  
+    margin: 40px auto;
+    border: 2px solid;
+  }
 </style>
 </head>
 <body>
@@ -194,7 +200,12 @@ HTML_PAGE = r"""<!doctype html>
     AC_MAP = await r.json();
   } catch (e) { AC_MAP = {}; }
 
-  const map = L.map('map', { preferCanvas:true }).setView([20,0], 2);
+  const map = L.map('map', { 
+    preferCanvas:true, 
+    worldCopyJump: false,
+    minZoom: 1,
+    maxBounds: [[-300, -300], [300, 300]],
+  }).setView([20,0], 2);
 
   AIRSPACES.forEach(space => {
     L.polygon(space.coords.map(p => [p.lat, p.lon]), {
@@ -208,7 +219,7 @@ HTML_PAGE = r"""<!doctype html>
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap & Carto',
-    maxZoom: 19
+    maxZoom: 19,
   }).addTo(map);
 
   const AC = {};
