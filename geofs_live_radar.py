@@ -6,15 +6,14 @@ Run:
     pip install flask requests
     python geofs_live_radar.py
 
-Open http://127.0.0.1:5000
+Then open http://127.0.0.1:5000
 
-Notes:
-- The server proxies the public endpoint https://mps.geo-fs.com/map as /api/map
-- The UI fetches /api/map every REFRESH_MS and updates markers smoothly
-- To add a richer aircraft id->name mapping (including community models), set AC_MAP_URL
-  to a raw JSON file mapping IDs to names (e.g. {"10":"Airbus A320", "24":"B737"}).
-- Added feature: show only aircraft whose callsign contains at least one keyword in SHOW_KEYWORDS
+Features:
+- Proxies GeoFS public endpoint as /api/map
+- Shows all aircraft filtered by keywords
+- Smooth marker updates with heading + callsign labels
 """
+
 from flask import Flask, Response, make_response
 import requests
 import os
@@ -25,7 +24,7 @@ UPSTREAM_URL = "https://mps.geo-fs.com/map"
 TIMEOUT = 3
 PORT = int(os.environ.get("PORT", 5000))
 
-AC_MAP_URL = None
+AC_MAP_URL = None  # Optional: set to JSON file of aircraft mappings
 
 SMALL_DEFAULT_AC_MAP = {
     "1": "Piper Cub",
@@ -45,6 +44,7 @@ app = Flask(__name__)
 _ac_map = SMALL_DEFAULT_AC_MAP.copy()
 
 def try_load_ac_map():
+    """Load external aircraft map if provided."""
     global _ac_map
     if not AC_MAP_URL:
         return
@@ -60,6 +60,7 @@ def try_load_ac_map():
 
 @app.route("/api/map", methods=["GET"])
 def proxy_map():
+    """Proxy GeoFS map API."""
     try:
         r = requests.post(UPSTREAM_URL, data={}, timeout=TIMEOUT)
         r.raise_for_status()
@@ -131,7 +132,6 @@ HTML_PAGE = r"""<!doctype html>
   .contact-bar a:hover {
     text-decoration: underline;
   }
-
 </style>
 </head>
 <body>
@@ -146,10 +146,8 @@ HTML_PAGE = r"""<!doctype html>
   📧 Email: <a href="mailto:massiv4515@gmail.com">massiv4515@gmail.com</a> &nbsp;|&nbsp;
   💬 Discord: <a href="https://discord.com/users/1063031652546269254" target="_blank">massiv4515</a> &nbsp;|&nbsp;
   💻 GitHub: <a href="https://github.com/Massiv4515" target="_blank">Massiv4515</a>
-
   <div style="font-size:10px;">&copy; developed by MASSIV4515</div>
 </div>
-
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
@@ -158,70 +156,16 @@ HTML_PAGE = r"""<!doctype html>
   const ANIMATE_MS = REFRESH_MS;
   const STALE_MS = 15000;
   const LABEL_ZOOM_MIN = 0;
-  const roleId = "1203013719752446042";
-  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1406218574845972501/U01k2UlXJJl7X51qVyajddgh-rFAqOPn4Wg9tMkOw88TPQ_ZlynOl8swbg9xmJooD7PU";
 
-
-  // Define airspaces polygons
-  const AIRSPACES = [
-    {
-        name: "Mainland",
-        coords: [
-            { lat: 25, lon: 61.5 },
-            { lat: 27.5, lon: 62.8 },
-            { lat: 29.7, lon: 60.8 },
-            { lat: 32.66, lon: 68.86 },
-            { lat: 36.88, lon: 72.22 },
-            { lat: 35.5, lon: 80 },
-            {lat: 31.8, lon: 79 },
-            { lat: 30.33, lon: 80.97 },
-            { lat: 28.95, lon: 80 },
-            { lat: 26.5, lon: 88 },
-            {lat: 27.96, lon: 88 },
-            { lat: 29.4, lon: 97.5 },
-            { lat: 20.86, lon: 92.4 },
-            { lat: 21.7, lon: 88.84 },
-            {lat: 7.5, lon: 78.4 },
-            {lat: 7.67, lon: 76.2 },
-            {lat: 21, lon: 68.5 },
-        ]
-    },
-    {
-        name: "Islands",
-        coords: [
-            { lat: 13.55, lon: 92.83 },
-            { lat: 13.59, lon: 93.13 },
-            { lat: 10.6, lon: 92.6 },
-            { lat: 6.84, lon: 94 },
-            { lat: 6.73, lon: 93.69 },
-            { lat: 10.65, lon: 92.27 },
-        ]
-    },
-    {
-        name: "Africa",
-        coords: [
-            { lat: 10.57, lon: 22.4 },
-            { lat: 10.51, lon: 34.1 },
-            { lat: 14.7, lon: 37.9 },
-            { lat: 13.98, lon: 40.86 },
-            { lat: 12.47, lon: 42.35 },
-            { lat: 11, lon: 41.75 },
-            {lat: 7.8, lon: 47.34 },
-            { lat: 5, lon: 44.76 },
-            { lat: 3.84, lon: 38 },
-            { lat: 3, lon: 16 },
-            {lat: 7.68, lon: 15.5 },
-        ]
-    },
+  // Show only callsigns with these tags
+  const SHOW_KEYWORDS = [
+    "[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]",
+    "[RPAF]","[WANK]","[NIUF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]",
+    "[TUAF]","[TASC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]",
+    "(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(AEF)","(RNZAF)",
+    "(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)","(TUAF)","(TASC)","(UAC)",
+    "(UAEAF)","(USSR)","(BAF)","(WANK)","(NIUF)","(PAF)","(RAF)"
   ];
-
-
-
-  // Define keywords to filter callsigns
-  //const SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[SHL]","[NFS]","[RPAF]","[AEF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]","[tuAF]","[TuAF]","[TUAF]","[TASC]","[TaSC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]","(U)","(UTP)","(P)","(PMC)","(RNLAF)","(RNZAF)","(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)","(tuAF)","(TuAF)","(TASC)","(TaSC)","(TUAF)","(UAC)","(UAEAF)","(USSR)","(BAF)","(PAF)","(RAF)"]; // add your keywords here // add your keywords here
-  
-  const SHOW_KEYWORDS = ["[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]","[RPAF]","[WANK]","[NIUF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]","[tuAF]","[TuAF]","[TUAF]","[TASC]","[TaSC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]","[RAF]","(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(AEF)","(RNZAF)","(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)","(tuAF)","(TuAF)","(TASC)","(TaSC)","(TUAF)","(UAC)","(UAEAF)","(USSR)","(BAF)","(WANK)","(NIUF)","(PAF)","(RAF)"]
-
 
   let AC_MAP = {};
   try {
@@ -236,25 +180,12 @@ HTML_PAGE = r"""<!doctype html>
     maxBounds: [[-300, -300], [300, 300]],
   }).setView([20,0], 2);
 
-  AIRSPACES.forEach(space => {
-    L.polygon(space.coords.map(p => [p.lat, p.lon]), {
-        color: 'orange',
-        weight: 0,
-        fillOpacity: 0
-    }).addTo(map);
-  });
-
-
-
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap & Carto',
     maxZoom: 19,
   }).addTo(map);
 
   const AC = {};
-
-  const AIRSPACE_STATUS = {};  // { aircraft_id: { "Mainland": true/false, ... } }// Track which aircraft are inside which airspace
-
 
   function nowMs(){ return Date.now(); }
 
@@ -283,6 +214,7 @@ HTML_PAGE = r"""<!doctype html>
     return (θ * 180/Math.PI + 360) % 360;
   }
 
+  // Smooth animation loop
   let animating = false;
   function startAnimationLoop(){
     if (animating) return;
@@ -310,31 +242,6 @@ HTML_PAGE = r"""<!doctype html>
     requestAnimationFrame(frame);
   }
 
-
-  function inPolygon(lat, lon, polygon) {
-    let inside = false;
-    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-        const xi = polygon[i].lat, yi = polygon[i].lon;
-        const xj = polygon[j].lat, yj = polygon[j].lon;
-        const intersect = ((yi > lon) != (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-    }
-    return inside;
-  }
-
-  async function sendDiscordMessage(content){
-    try {
-        await fetch(DISCORD_WEBHOOK_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content })
-        });
-    } catch(e){
-        console.error("Discord message failed:", e);
-    }
-  }
-
-
   async function refreshLoop(){
     try {
         const r = await fetch('/api/map', {cache:'no-store'});
@@ -354,49 +261,18 @@ HTML_PAGE = r"""<!doctype html>
             const csRaw = (typeof u.cs === 'string') ? u.cs.trim() : '';
             if (!csRaw) continue;
 
-            // --- Exclude specific bot ---
+            // Skip specific bots
             if (csRaw.toLowerCase() === 'randomassguy[u]') continue;
             if (csRaw === 'EventHorizon[USAF]') continue;
 
             const callsign = csRaw;
 
-            // --- Keyword filter ---
+            // Keyword filter
             const show = SHOW_KEYWORDS.length === 0 || SHOW_KEYWORDS.some(k => callsign.toUpperCase().includes(k.toUpperCase()));
             if (!show) continue;
-            // --- End keyword filter ---
 
             const id = String(u.id || u.acid || Math.random());
             const prevItem = AC[id];
-
-            // --- Airspace entry/exit detection ---
-            const prevAirspaces = prevItem ? prevItem.airspaces || [] : [];
-            const currentAirspaces = [];
-
-            for (const airspace of AIRSPACES) {
-                if (inPolygon(lat, lon, airspace.coords)) {
-                    currentAirspaces.push(airspace.name);
-                    if (!prevAirspaces.includes(airspace.name)) {
-                        //console.log(`ALERT: ${callsign} has ENTERED our ${airspace.name}`);
-                        //sendDiscordMessage(`ALERT:          ${callsign} has ENTERED our ${airspace.name} <@&${roleId}> `);
-                    }
-                }
-            }
-
-            // detect exit
-            if (prevItem && prevAirspaces.length > 0) {
-                for (const exited of prevAirspaces) {
-                    if (!currentAirspaces.includes(exited)) {
-                        //console.log(`${callsign} has LEFT our ${exited}`);
-                        //sendDiscordMessage(`${callsign} LEFT our ${exited}`);
-                    }
-                }
-            }
-
-            // update aircraft's airspaces
-            if (!prevItem) AC[id] = {};
-            AC[id].airspaces = currentAirspaces;
-
-
 
             if (!prevItem){
                 const m = L.marker([lat, lon], { icon: makeIcon(hdgServer || 0) }).addTo(map);
@@ -412,14 +288,12 @@ HTML_PAGE = r"""<!doctype html>
                     lastSeen: t_fetch,
                     lastBearing: hdgServer || 0,
                     callsign,
-                    airspaces: currentAirspaces
                 };
             } else {
                 prevItem.prevPos = prevItem.nextPos || { lat: prevItem.prevPos.lat, lon: prevItem.prevPos.lon };
                 prevItem.nextPos = { lat, lon };
                 prevItem.t0 = t_fetch; prevItem.t1 = t_fetch + ANIMATE_MS;
                 
-                // --- Correct heading ---
                 let cog = hdgServer != null ? hdgServer : prevItem.lastBearing || 0;
                 const moved = Math.abs(lat - prevItem.prevPos.lat) + Math.abs(lon - prevItem.prevPos.lon);
                 if (moved > 1e-5 && hdgServer == null) {
@@ -431,7 +305,6 @@ HTML_PAGE = r"""<!doctype html>
 
                 prevItem.lastSeen = t_fetch;
                 prevItem.callsign = callsign;
-                prevItem.airspaces = currentAirspaces;
             }
         }
 
@@ -446,10 +319,10 @@ HTML_PAGE = r"""<!doctype html>
     }
   }
 
-
   startAnimationLoop();
   refreshLoop();
 
+  // Show/hide labels based on zoom
   map.on('zoomend', ()=>{
     const z = map.getZoom();
     for (const id in AC){
@@ -479,5 +352,5 @@ if __name__ == "__main__":
     else:
         print(f"Using default AC map with {len(_ac_map)} entries. Set AC_MAP_URL to load more.")
 
-    print(f"GeoFS Live Radar running on http://0.0.0.1:{PORT}")
+    print(f"GeoFS Live Radar running on http://0.0.0.0:{PORT}")
     app.run(host="0.0.0.0", port=PORT, debug=False)
