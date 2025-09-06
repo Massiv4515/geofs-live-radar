@@ -69,6 +69,11 @@ HTML_PAGE = r"""<!doctype html>
     white-space:nowrap;
     pointer-events:none;
   }
+  
+  body{
+    background: linear-gradient(180deg, rgba(173,216,230,0.22), rgba(245,245,220,0.22));
+  }
+  
   #map { 
     height:90%;
     width:95%;  
