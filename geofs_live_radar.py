@@ -115,7 +115,7 @@ HTML_PAGE = r"""<!doctype html>
 
 <div class="contact-bar">
   📧 Email: <a href="mailto:massiv4515@gmail.com">massiv4515@gmail.com</a> &nbsp;|&nbsp;
-  💬 Discord: <a href="https://discord.com/users/1063031652546269254" target="_blank">massiv4515</a> &nbsp;|&nbsp;
+  💬 Discord: <a href="https://discord.com/users/1421366810200244246" target="_blank">massiv4515</a> &nbsp;|&nbsp;
   💻 GitHub: <a href="https://github.com/Massiv4515" target="_blank">Massiv4515</a>
   <div style="font-size:10px;">&copy; developed by MASSIV4515</div>
 </div>
@@ -132,8 +132,8 @@ HTML_PAGE = r"""<!doctype html>
   const SHOW_KEYWORDS = [
     "[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]",
     "[RPAF]","[WANK]","[NIUF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]", "[TBD]", "[CAEAF]",
-    "[TUAF]","[TASC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]", "[JASDF]","[RAF]",
-    "(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(AEF)","(RNZAF)",
+    "[TUAF]","[TASC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]", "[JASDF]","[RAF]", "[RFAF]", "[EVKS]", "[VKS]", "[ACP]", "[PYR]",
+    "(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(AEF)","(RNZAF)", "(RFAF)", "(EVKS)", "(VKS)", "(ACP)", "(PYR)",
     "(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)", "(JASDF)", "(TUAF)","(TASC)","(UAC)",
     "(UAEAF)","(USSR)","(BAF)","(WANK)","(NIUF)","(PAF)","(RAF)", "(TBD)", "(CAEAF)"
   ];
