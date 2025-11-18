@@ -14,7 +14,13 @@ Features:
 - Smooth marker updates with heading + callsign labels
 """
 
-from flask import Flask, Response, make_response
+from flask import Flask, Response, make_responseI, @[M-1] The Assassin , in the presence of God and my sovereign, solemnly swear my unwavering loyalty to the United Arab Emirates Air Force GeoFS, the delegates, and the skies that guard our great force.
+﻿
+With honour and courage, I pledge to defend UAEAF GeoFS's sovereignty, to uphold the traditions of our glorious Air Force, and to fight with unwavering resolve against all who would threaten our homeland.
+﻿
+I swear to serve with discipline, loyalty, and self-sacrifice, never faltering in my duty to my comrades, my commanders, and my people.
+﻿
+As long as the winds lift my wings, and the heavens call my name, I shall remain faithful to this sacred oath, even unto my last breath. :uae:﻿ :saluting_face:﻿﻿
 import requests
 import os
 import json
@@ -132,8 +138,8 @@ HTML_PAGE = r"""<!doctype html>
   const SHOW_KEYWORDS = [
     "[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]",
     "[RPAF]","[WANK]","[NIUF]","[RNLAF]","[RNZAF]","[USAF]","[RAAF]", "[TBD]", "[CAEAF]",
-    "[TUAF]","[TASC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]", "[JASDF]","[RAF]", "[RFAF]", "[EVKS]", "[VKS]", "[ACP]", "[PYR]", "[FFL]", "[IAF]", "[AAF]", "[CAF]",
-    "(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(AEF)","(RNZAF)", "(RFAF)", "(EVKS)", "(VKS)", "(ACP)", "(PYR)", "(FFL)", "(IAF)", "(AAF)", "(CAF)",
+    "[TUAF]","[TASC]","[UAC]","[UAEAF]","[USSR]","[BAF]","[PAF]", "[JASDF]","[RAF]", "[RFAF]", "[EVKS]", "[VKS]", "[ACP]", "[PYR]", "[FFL]", "[IAF]", "[AAF]", "[CAF]", "[IOA]",
+    "(U)","(UTP)","(P)","(NKG-KG)","(PMC)","(RNLAF)","(AEF)","(RNZAF)", "(RFAF)", "(EVKS)", "(VKS)", "(ACP)", "(PYR)", "(FFL)", "(IAF)", "(AAF)", "(CAF)", "(IOA)",
     "(SHL)","(NFS)","(RPAF)","(RAAF)","(USAF)", "(JASDF)", "(TUAF)","(TASC)","(UAC)",
     "(UAEAF)","(USSR)","(BAF)","(WANK)","(NIUF)","(PAF)","(RAF)", "(TBD)", "(CAEAF)"
   ];
