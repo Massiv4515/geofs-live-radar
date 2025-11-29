@@ -80,6 +80,7 @@ HTML_PAGE = r"""<!doctype html>
     width:95%;  
     margin: 40px auto;
     border: 2px solid;
+  }
 
   #bg-video {
     position: fixed;
@@ -92,8 +93,6 @@ HTML_PAGE = r"""<!doctype html>
   }
 
 
-    
-  }
   .contact-bar {
     background: rgba(0,0,0,0.8);
     color: white;
@@ -125,7 +124,6 @@ HTML_PAGE = r"""<!doctype html>
 <video autoplay loop muted playsinline id="bg-video" preload="auto">
   <source src="static/christmas.mp4" type="video/mp4">
 </video>
-
 
 
 <div id="map"></div>
