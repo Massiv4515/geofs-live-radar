@@ -80,6 +80,19 @@ HTML_PAGE = r"""<!doctype html>
     width:95%;  
     margin: 40px auto;
     border: 2px solid;
+
+  #bg-video {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    z-index: -1; /* behind all content */
+    object-fit: cover;
+  }
+
+
+    
   }
   .contact-bar {
     background: rgba(0,0,0,0.8);
@@ -106,6 +119,15 @@ HTML_PAGE = r"""<!doctype html>
 </style>
 </head>
 <body>
+
+<center><img src="/static/MerryChristmas.png" alt="Merry Christmas" height="10%" width="30%" style="margin-top:20px;"></center>
+
+<video autoplay loop muted playsinline id="bg-video" preload="auto">
+  <source src="static/christmas.mp4" type="video/mp4">
+</video>
+
+
+
 <div id="map"></div>
 <div class="hud">
   <div style="font-weight:700">GeoFS Military Radar</div>
