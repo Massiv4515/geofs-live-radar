@@ -119,7 +119,7 @@ HTML_PAGE = r"""<!doctype html>
 </head>
 <body>
 
-<center><img src="/static/MerryChristmas.png" alt="Merry Christmas" height="10%" width="30%" style="margin-top:20px;"></center>
+<center><img src="/static/Happy_New_Year_text.png" alt="Happy New Year" height="10%" width="30%" style="margin-top:20px;"></center>
 
 <video autoplay loop muted playsinline id="bg-video" preload="auto">
   <source src="static/christmas.mp4" type="video/mp4">
