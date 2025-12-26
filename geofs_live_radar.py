@@ -60,12 +60,12 @@ HTML_PAGE = r"""<!doctype html>
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial; font-size:13px;
   }
   .label {
-    background: rgba(255,255,255,0.95);
+    background: #2a2a2a;
     padding:3px 7px;
     border-radius:4px;
     font-weight:700;
     font-size:12px;
-    color:#000;
+    color: #39FF14;
     border:1px solid rgba(0,0,0,0.12);
     white-space:nowrap;
     pointer-events:none;
@@ -167,7 +167,7 @@ HTML_PAGE = r"""<!doctype html>
     maxBounds: [[-300, -300], [300, 300]],
   }).setView([20,0], 2);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap & Carto',
     maxZoom: 19,
   }).addTo(map);
