@@ -16,8 +16,8 @@ Features:
 - Advanced Search Filter
 """
 
-from flask import Flask, Response, make_response
-import requests
+from flask import Flask, Response, make_response 
+import requests 
 import os
 import json
 
@@ -54,6 +54,7 @@ HTML_PAGE = r"""<!doctype html>
 <title>GeoFS Radar</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 <style>
 
   :root {
@@ -91,11 +92,7 @@ HTML_PAGE = r"""<!doctype html>
     --accent: #00ff9c;
   }
 
-
-
-
   html,body,#map { height:100%; margin:0; }
-
 
   .hud {
     position:fixed; left:8px; top:8px; z-index:9999;
@@ -103,16 +100,15 @@ HTML_PAGE = r"""<!doctype html>
     font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial; font-size:13px;
   }
   .label {
-    background: var(--label-bg);
-    padding:3px 7px;
-    border-radius:4px;
-    font-weight:700;
-    font-size:12px;
+    background: transparent;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 12px;
     color: var(--label-text);
-    border: 1px solid var(--label-border);
-    white-space:nowrap;
-    pointer-events:none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    width: fit-content;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
   
   body {
@@ -132,71 +128,78 @@ HTML_PAGE = r"""<!doctype html>
     );
   }
 
-
-  
   #map { 
-    height:90%;
-    width:95%;  
-    margin: 40px auto;
+    height:95%;
+    width:100%;  
     border: 2px solid var(--bg-map-border);
   }
-
-
 
   .contact-bar {
     background: rgba(0,0,0,0.8);
     color: white;
-    text-align: center;
-    padding: 8px;
     font-family: system-ui, sans-serif;
     font-size: 14px;
-    margin-top: 15px;
-    border-radius: 6px;
-    width: 95%;
-    margin-left: auto;
-    margin-right: auto;
+    font-weight: bold;
+    width: 100%;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;          
+    padding: 10px 20px;           
+    box-sizing: border-box;        
   }
+
+  .contact-bar-left {
+    opacity: 0.8;
+  }
+
+  .contact-bar-right {
+    display: flex;
+    align-items: center;
+  }
+
   .contact-bar a {
     color: #0af;
     margin: 0 10px;
     text-decoration: none;
     font-weight: bold;
   }
+
   .contact-bar a:hover {
     text-decoration: underline;
   }
 
+  .material-symbols-outlined {
+    vertical-align: middle;
+    font-size: 18px; 
+    margin-right: 4px;
+  }
 
   .theme-toggle {
     position: fixed;
-    top: 15px;
-    right: 15px;
+    top: 8px;
+    right: 8px;
     z-index: 10000;
-
     width: 50px;
     height: 50px;
-    border-radius: 50%;
     border: none;
-
-    background: var(--toggle-button);
-    color: var(--accent);
-
-    font-size: 18px;
-    cursor: pointer;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
-    backdrop-filter: blur(6px);
+    cursor: pointer;
     transition: transform 0.2s ease;
+
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    border-radius: 8px; 
+
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial;
+    font-size: 18px;
   }
 
   .theme-toggle:hover {
-    transform: scale(1.08);
+    filter: brightness(1.2);
   }
 
-  
   /* Leaflet popup – light mode (optional, matches your UI) */
   .leaflet-popup-content-wrapper,
   .leaflet-popup-tip {
@@ -229,30 +232,32 @@ HTML_PAGE = r"""<!doctype html>
     border: 1px solid rgba(0,255,140,0.25);
   }
 
-
   /* FILTER MODAL */
 
   .filter-toggle {
     position: fixed;
-    top: 2px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 8px;
+    right: 50%;
+    transform: translateX(50%);
 
     z-index: 10000;
-
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.25);
-
+    width: fit-content;
+    height: 30px;
+    padding: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    font-weight: 700;
+    transition: transform 0.2s ease;
 
-    background: rgba(0,0,0,0.65);
-    color: white;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    border-radius: 8px; 
 
-    backdrop-filter: blur(6px);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial;
+    font-size: 18px;  
   }
-
 
   .filter-panel {
     position: fixed;
@@ -288,8 +293,6 @@ HTML_PAGE = r"""<!doctype html>
     pointer-events: auto;
     transform: translateX(-50%) translateY(-17%) scale(1);
   }
-
-
 
   .filter-header {
     color: var(--filter-header-color);
@@ -422,7 +425,6 @@ HTML_PAGE = r"""<!doctype html>
   body.dark .tag button:hover {
     opacity: 1;
   }
-
 </style>
 </head>
 <body>
@@ -434,14 +436,19 @@ HTML_PAGE = r"""<!doctype html>
 </div>
 
 <div class="contact-bar">
-  📧 Email: <a href="mailto:massiv4515@gmail.com">massiv4515@gmail.com</a> &nbsp;|&nbsp;
-  💬 Discord: <a href="https://discord.com/users/1421366810200244246" target="_blank">massiv4515</a> &nbsp;|&nbsp;
-  💻 GitHub: <a href="https://github.com/Massiv4515" target="_blank">Massiv4515</a> &nbsp;|&nbsp;
-  🤝 Contributors: <a href="https://discord.com/users/702415876904976424" target="_blank">BigBoi69</a>
-  <div style="font-size:10px;">&copy; developed by MASSIV4515</div>
+  <div class="contact-bar-left">
+    <div>&copy; developed by MASSIV4515</div>
+  </div>
+  <div class="contact-bar-right">
+    <span class="material-symbols-outlined">mail</span> Email: <a href="mailto:massiv4515@gmail.com">massiv4515@gmail.com</a> &nbsp;|&nbsp;
+    <span class="material-symbols-outlined">chat_bubble</span> Discord: <a href="https://discord.com/users/1421366810200244246" target="_blank">massiv4515</a> &nbsp;|&nbsp;
+    <span class="material-symbols-outlined">computer</span> GitHub: <a href="https://github.com/Massiv4515" target="_blank">Massiv4515</a> &nbsp;|&nbsp;
+    <span class="material-symbols-outlined">handshake</span> Contributors: <a href="https://discord.com/users/702415876904976424" target="_blank">BigBoi69,</a><a href="https://github.com/bismarck017" target="_blank">Bismarck</a>
+  </div>
 </div>
-
-<button id="themeToggle" class="theme-toggle">🌙</button>   
+<button id="themeToggle" class="theme-toggle">
+  <span class="material-symbols-outlined">sunny</span> // not working
+</button>   
 
 <!-- FILTER MODAL -->
 <div id="filterPanel" class="filter-panel">
@@ -462,7 +469,7 @@ HTML_PAGE = r"""<!doctype html>
 </div>
 
 <!-- OPEN BUTTON -->
-<button id="openFilter" class="filter-toggle">🔍 Filter-Callsigns</button>
+<button id="openFilter" class="filter-toggle">Filter callsigns</button>
 
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -473,7 +480,6 @@ HTML_PAGE = r"""<!doctype html>
   const STALE_MS = 15000;
   const LABEL_ZOOM_MIN = 0;
 
-  // Show only callsigns with these tags
   const DEFAULT_TAGS = [
     "[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]", "lasallian", "butter", "ek-069", "tarun", "massiv4515", "walch", "ljf", "ek-1", "notipa", "est201", "raptor4001", "speedbird",
     "[WANK]", "[NIUF]", "[TBD]", "[Luftwaffe]", "[BPYR]", "[Luftwafe]", "[MAC]", "[PRC]", "xavier", "tassin",
@@ -482,7 +488,6 @@ HTML_PAGE = r"""<!doctype html>
 
   const TAGS_KEY = "geofs_radar_tags";
 
-  
   let activeTags;
   try {
     activeTags = JSON.parse(localStorage.getItem(TAGS_KEY)) || [...DEFAULT_TAGS];
@@ -490,8 +495,6 @@ HTML_PAGE = r"""<!doctype html>
     activeTags = [...DEFAULT_TAGS];
   }
 
-
-  
   const AIRCRAFT_DB = {
     1: "Piper Cub",
     2: "Cessna 172",
@@ -644,7 +647,6 @@ HTML_PAGE = r"""<!doctype html>
     5486: "Aviat A-1B Husky (by coolpilot11)",
     5499: "CubCrafters CC19 XCub (by AriakimTaiyo)",
     5516: "Boeing 747-400 LCF by Luca & (by JAaMDG)"
-    // you can keep extending this list
   };
 
   function getAircraftName(ac) {
@@ -652,10 +654,7 @@ HTML_PAGE = r"""<!doctype html>
     return AIRCRAFT_DB[ac] || `Unknown Aircraft (ID ${ac})`;
   }
 
-
-  
   const AC = {};
-
   let LOCKED_ID = null;
 
   const map = L.map('map', { 
@@ -682,12 +681,7 @@ HTML_PAGE = r"""<!doctype html>
     }
   );
 
-// default (light mode)
 lightTiles.addTo(map);
-
-
-  
-
   map.on('click', function () {
     if (LOCKED_ID) {
         const it = AC[LOCKED_ID];
@@ -696,22 +690,15 @@ lightTiles.addTo(map);
     }
   });
 
-
-
-
   function nowMs(){ return Date.now(); }
 
-  
   document.getElementById("resetBtn").onclick = () => {
     activeTags = [...DEFAULT_TAGS];
     renderTags();
     applyFilterNow();
     localStorage.removeItem(TAGS_KEY);
-    location.reload(); //remove this in the next update
+    location.reload(); 
   };
-
-
-
 
   function svgArrow(deg){
     return `<div style="transform: rotate(${deg}deg); display:block;">
@@ -738,7 +725,6 @@ lightTiles.addTo(map);
     return (θ * 180/Math.PI + 360) % 360;
   }
 
-  // Smooth animation loop
   let animating = false;
   function startAnimationLoop(){
     if (animating) return;
@@ -780,18 +766,10 @@ lightTiles.addTo(map);
     `;
   }
 
-  
   function normalizeHeading(hdg){
     if (typeof hdg !== 'number' || !isFinite(hdg)) return null;
     return (hdg + 360) % 360;
   }
-
-  
-  
-
-
-
-
 
   async function refreshLoop(){
     try {
@@ -801,15 +779,11 @@ lightTiles.addTo(map);
         const users = Array.isArray(data.users) ? data.users : [];
         const reported = (typeof data.userCount === 'number') ? data.userCount : users.length;
         const t_fetch = nowMs();
-
         for (const u of users){
             if (!u || !Array.isArray(u.co) || u.co.length < 4) continue;
 
             const lat = u.co[0], lon = u.co[1], alt_in_meters = u.co[2], hdgServer = u.co[3];
-
             const alt = alt_in_meters * 3.28084;
-
-
 
             if (typeof lat !== 'number' || typeof lon !== 'number') continue;
             if (!isFinite(lat) || !isFinite(lon)) continue;
@@ -818,13 +792,11 @@ lightTiles.addTo(map);
             const csRaw = (typeof u.cs === 'string') ? u.cs.trim() : '';
             if (!csRaw) continue;
 
-            // Skip specific bots
             if (csRaw.toLowerCase() === 'randomassguy[u]') continue;
             if (csRaw === 'EventHorizon[USAF]') continue;
 
             const callsign = csRaw;
 
-            // Keyword filter
             const show = activeTags.length === 0 || activeTags.some(k => callsign.toUpperCase().includes(k.toUpperCase()));
             if (!show) continue;
 
@@ -848,21 +820,14 @@ lightTiles.addTo(map);
 
                 m.on('click', function (e) {
                     e.originalEvent.stopPropagation();
-                    // Clicking the same aircraft unlocks it
-                    if (LOCKED_ID === id) {
+                   if (LOCKED_ID === id) {
                         LOCKED_ID = null;
                         this.closePopup();
                         return;
                     }
-
-                    // Lock this aircraft
                     LOCKED_ID = id;
                     this.openPopup();
                 });
-
-
-
-
                 const lab = L.marker([lat, lon], { icon: makeLabel(callsign), interactive:false });
                 if (map.getZoom() >= LABEL_ZOOM_MIN) lab.addTo(map);
                 AC[id] = {
@@ -881,10 +846,7 @@ lightTiles.addTo(map);
                     speed: u.st?.as ?? null,
                     aircraft: getAircraftName(u.ac),
                 };
-
                 m.setPopupContent(popupHTML(AC[id]));
-
-
             } else {
                 prevItem.prevPos = prevItem.nextPos || { lat: prevItem.prevPos.lat, lon: prevItem.prevPos.lon };
                 prevItem.nextPos = { lat, lon };
@@ -905,26 +867,15 @@ lightTiles.addTo(map);
                 prevItem.aircraft = getAircraftName(u.ac);
                 prevItem.uid = u.id ?? prevItem.uid;
                 prevItem.acid = u.acid ?? prevItem.acid;
-
-
                 if (prevItem.marker){
                     prevItem.marker.setPopupContent(popupHTML(prevItem));
                 }
-
-
                 prevItem.lastSeen = t_fetch;
                 prevItem.callsign = callsign;
-
-
-
-
-
             }
         }
-
         document.getElementById('stats').textContent = `Showing ${Object.keys(AC).length} markers • Reported total: ${reported}`;
         document.getElementById('last').textContent = `Last fetch: ${new Date().toLocaleTimeString()}`;
-
     } catch(err){
         console.error("Fetch error:", err);
         document.getElementById('stats').textContent = 'Fetch error';
@@ -932,8 +883,6 @@ lightTiles.addTo(map);
         setTimeout(refreshLoop, REFRESH_MS);
     }
   }
-
-
   function applyFilterNow() {
     for (const id in AC) {
         const it = AC[id];
@@ -944,7 +893,6 @@ lightTiles.addTo(map);
             activeTags.some(k =>
                 cs.toUpperCase().includes(k.toUpperCase())
             );
-
         if (!show) {
             if (it.marker) map.removeLayer(it.marker);
             if (it.label) map.removeLayer(it.label);
@@ -953,12 +901,9 @@ lightTiles.addTo(map);
     }
   }
 
-
-  
   const panel = document.getElementById("filterPanel");
   const openBtn = document.getElementById("openFilter");
   const closeBtn = document.getElementById("closeFilter");
-
 
   function renderTags() {
     const list = document.getElementById("tagList");
@@ -974,9 +919,7 @@ lightTiles.addTo(map);
       list.appendChild(el);
     });
 
-    // SAVE
     localStorage.setItem(TAGS_KEY, JSON.stringify(activeTags));
-
   }
 
   window.removeTag = function(i, e){
@@ -985,7 +928,6 @@ lightTiles.addTo(map);
     renderTags();
     applyFilterNow();
   };
-
 
   document.getElementById("addTagBtn").onclick = () => {
     const inp = document.getElementById("tagInput");
@@ -1007,10 +949,6 @@ lightTiles.addTo(map);
     }
   });
 
-
-  
-
-
   openBtn.onclick = () => panel.classList.toggle("open");
   closeBtn.onclick = () => panel.classList.remove("open");
 
@@ -1022,22 +960,17 @@ lightTiles.addTo(map);
       openBtn.contains(e.target) ||
       themeBtn.contains(e.target)
     ) {
-      return;                 // don't close
+      return;
     }
 
     panel.classList.remove("open");
   });
-
-
-
-
 
   renderTags();
 
   startAnimationLoop();
   refreshLoop();
 
-  // Show/hide labels based on zoom
   map.on('zoomend', ()=>{
     const z = map.getZoom();
     for (const id in AC){
@@ -1051,13 +984,14 @@ lightTiles.addTo(map);
     }
   });
 
-
   const toggleBtn = document.getElementById("themeToggle");
 
   function setTheme(dark) {
     document.body.classList.toggle("dark", dark);
     localStorage.setItem("theme", dark ? "dark" : "light");
-    toggleBtn.textContent = dark ? "☀️" : "🌙";
+    toggleBtn.innerHTML = dark
+      ? '<span class="material-symbols-outlined">sunny</span>'
+      : '<span class="material-symbols-outlined">bedtime</span>';
 
     if (dark) {
         map.removeLayer(lightTiles);
@@ -1068,25 +1002,18 @@ lightTiles.addTo(map);
     }
   }
 
-  const saved = localStorage.getItem("theme");
+  const saved = localStorage.getItem("theme");  
   setTheme(saved === "dark");
 
   toggleBtn.addEventListener("click", () => {
     setTheme(!document.body.classList.contains("dark"));
   });
-
-
 })();
-
 </script>
-
-
 </body>
 </html>
 """
 
-# ------------------ Main ------------------
-if __name__ == "__main__":
-    
+if __name__ == "__main__": 
     print(f"GeoFS Live Radar running on http://0.0.0.0:{PORT}")
     app.run(host="0.0.0.0", port=PORT, debug=False)
