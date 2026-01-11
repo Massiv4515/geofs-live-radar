@@ -481,8 +481,8 @@ HTML_PAGE = r"""<!doctype html>
   const LABEL_ZOOM_MIN = 0;
 
   const DEFAULT_TAGS = [
-    "[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]", "lasallian", "butter", "ek-069", "tarun", "massiv4515", "walch", "ljf", "ek-1", "notipa", "est201", "raptor4001", "speedbird",
-    "[WANK]", "[NIUF]", "[TBD]", "[Luftwaffe]", "[BPYR]", "[Luftwafe]", "[MAC]", "[PRC]", "xavier", "tassin",
+    "[U]","[UTP]","[P]","[PMC]","[NKG-KG]","[SHL]","[NFS]","[AEF]", "lasallian", "ek-069", "tarun", "massiv4515", "walch", "ljf", "ek-1", "notipa", "est201", "raptor4001",
+    "[WANK]", "[NIUF]", "[TBD]", "[Luftwaffe]", "[BPYR]", "[Luftwafe]", "[MAC]", "[PRC]", "[IE]",
     "[TASC]", "[UAC]", "[USSR]", "[JASDF]", "[EVKS]", "[VKS]", "[ACP]", "[PYR]", "[FFL]", "[IOA]", "AF]"
   ];
 
